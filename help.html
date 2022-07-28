@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pusat Bantuan</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+    />
+  
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/algoliasearch/3/algoliasearch.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+      body { font-family: helvetica, arial, sans-serif; }
+
+em { background: cyan; font-style: normal }
+
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.algolia-autocomplete {
+  width: 100%;
+}
+
+.algolia-autocomplete .aa-input, .algolia-autocomplete .aa-hint {
+  width: 100%;
+}
+
+.algolia-autocomplete .aa-hint {
+  color: #999;
+}
+
+.algolia-autocomplete .aa-dropdown-menu {
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #999;
+  border-top: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+  cursor: pointer;
+  padding: 5px 4px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+  background-color: #B2D7FF;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+  font-weight: bold;
+  font-style: normal;
+}
+
+.aa-input {
+  border-radius: 3px;
+  border: 1px solid lightgray;
+  padding: 5px;
+  font-size: 1em;
+}
+body {
+  height: 1000;
+  background: #f8f9fa;
+}
+#page-content {
+  flex: 1 0 auto;
+  height: 1000;
+}
+.footer {
+    position: absolute;
+    padding:10px;
+    bottom: 0;
+    width: 100%;
+    color: #f8f8f8;
+    background-color: #212529;
+}
+.responsive {
+  padding:25px;
+  height: auto;
+  max-width: 100%;
+}
+    </style>
+  </head>
+
+  <body  class="d-flex flex-column">
+
+    <div class="container" id="app">
+       <div id="page-content">
+        <div class="row justify-content-center">
+                        <div class="col-12 col-md-10 col-lg-8">
+                            <div style="text-align: center; margin:35px;margin-top:50px;"><img src="https://drive.google.com/u/0/uc?id=1cMCPc4MBN5MPzQdHfz7ijmO_-BllR0kf&amp;export=download" class="responsive"/></div>
+                            <form class="card card-sm">
+                                <div class="card-body row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <i class="fas fa-search h4 text-body"></i>
+                                    </div>
+                                    <!--end of col-->
+                                    <div class="col">
+                                        <input id="search-input" class="form-control form-control-lg form-control-borderless" type="search" placeholder="Apa yang Anda cari?">
+                                    </div>
+                                    <!--end of col-->
+                                </div>
+                            </form>
+                        </div>
+                        <!--end of col-->
+        </div>
+        <div class="container text-center">
+          <div class="row justify-content-center">
+            <div class="col-md-7">
+                <br/><br/>
+                <p style="color:black;font-weight:bold;">{{pertanyaan}}</p>
+                <p style="color:black;font-style:italic;">{{jawaban}}</p>
+                <p style="color:red;">{{ tautan }} </p>
+            </div>
+          </div>
+        </div>
+      </div>
+     
+    </div>
+    <footer class="footer">
+      <div class="container text-center">
+        <p>Layanan ini menggunakan Algolia. Bila Anda ingin kontribusi, hubungi kami melalui email.
+          Kemampuan yang diperlukan yaitu menguasai Javascript, Python dan berkeinginan kuat belajar Mechine Learning (NLP).
+        </p>
+        <small>Copyright &copy; Informatika</small>
+      </div>
+    </footer>
+  </body>
+  <script>
+    var app = new Vue({
+        el: "#app",
+        data: {pertanyaan:"",tautan:"",jawaban:""}
+    });
+    
+    var appID="RJSS5OGMWV";
+    var apiKey="f136aadca30add234b647cafb929c344"
+    var indicesName="helpinformatika";
+
+    const client = algoliasearch(appID, apiKey);
+    const index = client.initIndex(indicesName);
+
+    autocomplete('#search-input', { hint: false }, [
+      {
+        source: autocomplete.sources.hits(index, { hitsPerPage: 5 }),
+        displayKey: 'pertanyaan',
+        templates: {
+          suggestion(suggestion) {
+            var q =suggestion._highlightResult.pertanyaan.value;
+            var a =suggestion._highlightResult.jawaban.value;
+            var displaySuggestion = `<strong>${q}</strong> <br> ${a}`;
+            return displaySuggestion;
+          },
+        },
+      },
+    ]).on('autocomplete:selected', (event, suggestion, dataset) => {
+      // eslint-disable-next-line no-console
+      var selected = event._args[0];
+      app.pertanyaan =  selected.pertanyaan;
+      app.jawaban = selected.jawaban;
+      var link = (selected.tautan)?`Rekomendasi tautan : ${selected.tautan}`:"Rekomendasi tautan : -";
+      app.tautan = link ; 
+    });
+  </script>
+</html>
